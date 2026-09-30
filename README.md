@@ -1,6 +1,8 @@
-# Sony Connect
+# FlSony
 
-An unofficial desktop companion for the **Sony WH-1000XM4** (and likely XM3/XM5) headphones, built with Flutter. Sony's *Sound Connect* app has no macOS or Windows version; this fills that gap with a small, minimal interface.
+Unofficial desktop app for **Sony WH-1000XM4** headphones on macOS: noise cancelling, EQ, Speak-to-Chat, battery and more. Built with Flutter; Windows support in progress.
+
+Sony's *Sound Connect* app has no macOS or Windows version; FlSony fills that gap with a small, minimal interface. XM3 and XM5 are matched by name and may work, but are untested.
 
 > Not affiliated with or endorsed by Sony. "Sony", "WH-1000XM4" and "Sound Connect" are trademarks of Sony Group Corporation. The protocol used here is community reverse-engineered and may change with firmware updates. Use at your own risk.
 

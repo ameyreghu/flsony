@@ -18,7 +18,7 @@ Future<void> main() async {
       size: const Size(420, 780),
       minimumSize: const Size(380, 560),
       center: true,
-      title: 'Sony Connect',
+      title: 'FlSony',
       backgroundColor: Palette.bg,
       titleBarStyle: Platform.isMacOS ? TitleBarStyle.hidden : TitleBarStyle.normal,
     ),
@@ -40,18 +40,18 @@ Future<void> main() async {
     }
     ..start();
   await TrayMenu(controller, settings).init();
-  runApp(SonyConnectApp(controller: controller, settings: settings));
+  runApp(FlSonyApp(controller: controller, settings: settings));
 }
 
-class SonyConnectApp extends StatelessWidget {
-  const SonyConnectApp({super.key, required this.controller, required this.settings});
+class FlSonyApp extends StatelessWidget {
+  const FlSonyApp({super.key, required this.controller, required this.settings});
   final HeadphonesController controller;
   final AppSettings settings;
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Sony Connect',
+      title: 'FlSony',
       debugShowCheckedModeBanner: false,
       theme: buildTheme(),
       home: HomePage(controller: controller, settings: settings),

@@ -101,7 +101,7 @@ final class BluetoothPlugin: NSObject, FlutterStreamHandler {
 
   private func reportDenied() {
     emit(["type": "reachable", "value": false])
-    status("failed", reason: "Bluetooth access is off for Sony Connect. Turn it on in System Settings → Privacy & Security → Bluetooth.")
+    status("failed", reason: "Bluetooth access is off for FlSony. Turn it on in System Settings → Privacy & Security → Bluetooth.")
   }
 
   private func startMonitoring() {

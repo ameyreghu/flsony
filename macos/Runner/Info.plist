@@ -29,8 +29,8 @@
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
 	<key>NSAppleEventsUsageDescription</key>
-	<string>Sony Connect pauses Music, Spotify and TV before powering off your headphones, so audio doesn't jump to your speakers.</string>
+	<string>FlSony pauses Music, Spotify and TV before powering off your headphones, so audio doesn't jump to your speakers.</string>
 	<key>NSBluetoothAlwaysUsageDescription</key>
-	<string>Sony Connect uses Bluetooth to control your Sony headphones.</string>
+	<string>FlSony uses Bluetooth to control your Sony headphones.</string>
 </dict>
 </plist>

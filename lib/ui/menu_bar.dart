@@ -80,7 +80,7 @@ class TrayMenu with TrayListener, WindowListener {
             disabled: !ready || h.speakToChat == null,
           ),
           MenuItem.separator(),
-          MenuItem(key: 'open', label: 'Open Sony Connect'),
+          MenuItem(key: 'open', label: 'Open FlSony'),
           MenuItem(key: 'quit', label: 'Quit'),
         ],
       ),
