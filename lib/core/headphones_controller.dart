@@ -67,6 +67,9 @@ class HeadphonesController extends ChangeNotifier {
   Phase phase = Phase.unavailable;
   String deviceName = 'WH-1000XM4';
   String? failureReason;
+
+  /// What the connection is waiting on, when the platform says (e.g. permission).
+  String? connectingDetail;
   bool? touchSensor;
   NcMode? ncMode;
   bool? speakToChat;
@@ -268,9 +271,11 @@ class HeadphonesController extends ChangeNotifier {
 
   void _onStatus(StatusEvent e) {
     if (e.deviceName != null) deviceName = e.deviceName!;
+    connectingDetail = null;
     switch (e.state) {
       case LinkState.connecting:
         phase = Phase.connecting;
+        connectingDetail = e.reason;
       case LinkState.connected:
         _resetSession();
         _linkOpen = true;

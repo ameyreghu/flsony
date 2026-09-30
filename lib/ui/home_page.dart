@@ -27,7 +27,12 @@ class HomePage extends StatelessWidget {
         return Scaffold(
           body: SafeArea(
             child: ListView(
-              padding: EdgeInsets.fromLTRB(20, Platform.isMacOS ? 34 : 18, 20, 24),
+              padding: EdgeInsets.fromLTRB(
+                20,
+                Platform.isMacOS ? 34 : 18,
+                20,
+                24,
+              ).add(EdgeInsets.symmetric(horizontal: _sideInset(context))),
               children: [
                 _Header(c: c, settings: settings),
                 const SizedBox(height: 22),
@@ -208,7 +213,7 @@ class _StatusBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final (text, busy) = switch (c.phase) {
-      Phase.connecting => ('Talking to your headphones…', true),
+      Phase.connecting => (c.connectingDetail ?? 'Talking to your headphones…', true),
       Phase.idle => ('Headphones found. Opening control channel…', true),
       _ => (
         c.failureReason ?? 'Turn on your headphones and make sure they are paired in system Bluetooth settings.',
@@ -357,6 +362,11 @@ class _EqualizerState extends State<_Equalizer> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            if (c.eqPresets.isEmpty)
+              const Text(
+                'Presets and bands appear once the headphones are connected.',
+                style: TextStyle(fontSize: 12.5, height: 1.4, color: Palette.textDim),
+              ),
             Wrap(
               spacing: 8,
               runSpacing: 8,
@@ -434,4 +444,11 @@ class _PowerOff extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Keeps the content at a comfortable column width when the window is widened.
+double _sideInset(BuildContext context) {
+  const maxContent = 520.0;
+  final width = MediaQuery.sizeOf(context).width;
+  return width > maxContent + 40 ? (width - maxContent - 40) / 2 : 0;
 }

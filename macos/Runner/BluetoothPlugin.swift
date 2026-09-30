@@ -144,7 +144,10 @@ final class BluetoothPlugin: NSObject, FlutterStreamHandler {
     guard channel == nil, !connecting else { return }
     switch access {
     case .allowed: break
-    case .pending: pendingConnect = true; requestAccess(); return
+    case .pending:
+      pendingConnect = true
+      requestAccess()
+      return status("connecting", reason: "Waiting for Bluetooth permission…")
     case .denied: return reportDenied()
     }
     guard let device = targetDevice() else {
