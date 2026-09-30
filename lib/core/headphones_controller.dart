@@ -179,13 +179,7 @@ class HeadphonesController extends ChangeNotifier {
     // a volatile preview the headphones drop on the next session.
     final slot = eqPresetId;
     final target = slot != null && slot >= 0xA1 && slot <= 0xA5 ? slot : _Op.eqUnspecified;
-    _send([
-      _Op.eqSetParam,
-      _Op.eqPresetType,
-      target,
-      bands.length,
-      ...bands.map((b) => b.clamp(0, 20)),
-    ]);
+    _send([_Op.eqSetParam, _Op.eqPresetType, target, bands.length, ...bands.map((b) => b.clamp(0, 20))]);
     if (target == _Op.eqUnspecified) eqPresetId = _Op.eqCustom;
     eqBands = List.unmodifiable(bands);
     notifyListeners();
@@ -315,9 +309,11 @@ class HeadphonesController extends ChangeNotifier {
 
   // --- Sending ------------------------------------------------------------
   void _later(int ms, VoidCallback fn) {
-    _sessionTimers.add(Timer(Duration(milliseconds: ms), () {
-      if (!_disposed) fn();
-    }));
+    _sessionTimers.add(
+      Timer(Duration(milliseconds: ms), () {
+        if (!_disposed) fn();
+      }),
+    );
   }
 
   void _send(List<int> payload) {
@@ -330,8 +326,9 @@ class HeadphonesController extends ChangeNotifier {
 
   void _record(bool tx, List<int> payload) {
     tx ? txPackets++ : rxPackets++;
-    packetLog.add(LogLine(DateTime.now(), tx,
-        payload.map((b) => b.toRadixString(16).padLeft(2, '0').toUpperCase()).join(' ')));
+    packetLog.add(
+      LogLine(DateTime.now(), tx, payload.map((b) => b.toRadixString(16).padLeft(2, '0').toUpperCase()).join(' ')),
+    );
     if (packetLog.length > 300) packetLog.removeAt(0);
   }
 
@@ -428,7 +425,15 @@ class HeadphonesController extends ChangeNotifier {
     if (!featureSlots.any((f) => f.slot == slot)) {
       featureSlots = [
         ...featureSlots,
-        FeatureSlot(slot, name, b[descEnd] == 1 ? 'on/off' : b[descEnd] == 2 ? 'list' : '?'),
+        FeatureSlot(
+          slot,
+          name,
+          b[descEnd] == 1
+              ? 'on/off'
+              : b[descEnd] == 2
+              ? 'list'
+              : '?',
+        ),
       ];
     }
     if (format == 0x02 && name == 'TOUCH_PANEL_SETTING') {
@@ -450,10 +455,10 @@ class HeadphonesController extends ChangeNotifier {
     ncMode = effect == 0x00
         ? NcMode.off
         : ncValue != 0
-            ? NcMode.noiseCancelling
-            : asmLevel > 0
-                ? NcMode.ambient
-                : NcMode.off;
+        ? NcMode.noiseCancelling
+        : asmLevel > 0
+        ? NcMode.ambient
+        : NcMode.off;
     ambientFocusOnVoice = _asmId == 0x01;
   }
 
@@ -480,26 +485,26 @@ class HeadphonesController extends ChangeNotifier {
   }
 
   static String eqFallbackName(int id) => switch (id) {
-        0x00 => 'Off',
-        0x01 => 'Rock',
-        0x02 => 'Pop',
-        0x03 => 'Jazz',
-        0x04 => 'Dance',
-        0x05 => 'EDM',
-        0x06 => 'R&B / Hip-Hop',
-        0x07 => 'Acoustic',
-        0x10 => 'Bright',
-        0x11 => 'Excited',
-        0x12 => 'Mellow',
-        0x13 => 'Relaxed',
-        0x14 => 'Vocal',
-        0x15 => 'Treble Boost',
-        0x16 => 'Bass Boost',
-        0x17 => 'Speech',
-        0xA0 => 'Custom',
-        >= 0xA1 && <= 0xA5 => 'Custom ${id - 0xA0}',
-        _ => 'Preset ${id.toRadixString(16).toUpperCase()}',
-      };
+    0x00 => 'Off',
+    0x01 => 'Rock',
+    0x02 => 'Pop',
+    0x03 => 'Jazz',
+    0x04 => 'Dance',
+    0x05 => 'EDM',
+    0x06 => 'R&B / Hip-Hop',
+    0x07 => 'Acoustic',
+    0x10 => 'Bright',
+    0x11 => 'Excited',
+    0x12 => 'Mellow',
+    0x13 => 'Relaxed',
+    0x14 => 'Vocal',
+    0x15 => 'Treble Boost',
+    0x16 => 'Bass Boost',
+    0x17 => 'Speech',
+    0xA0 => 'Custom',
+    >= 0xA1 && <= 0xA5 => 'Custom ${id - 0xA0}',
+    _ => 'Preset ${id.toRadixString(16).toUpperCase()}',
+  };
 
   @override
   void dispose() {

@@ -12,8 +12,14 @@ Future<void> showConnectionDetails(BuildContext context, HeadphonesController c)
     builder: (_) => Dialog(
       backgroundColor: Palette.bg,
       insetPadding: const EdgeInsets.all(14),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24), side: const BorderSide(color: Palette.hairline)),
-      child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 460, maxHeight: 680), child: _Details(c: c)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(24),
+        side: const BorderSide(color: Palette.hairline),
+      ),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 460, maxHeight: 680),
+        child: _Details(c: c),
+      ),
     ),
   );
 }
@@ -70,11 +76,19 @@ class _DetailsState extends State<_Details> {
           children: [
             Padding(
               padding: const EdgeInsets.fromLTRB(22, 18, 12, 6),
-              child: Row(children: [
-                const Text('Connection details', style: TextStyle(fontFamily: Fonts.display, fontSize: 19, fontWeight: FontWeight.w700)),
-                const Spacer(),
-                IconButton(onPressed: () => Navigator.pop(context), icon: const Icon(Icons.close_rounded, color: Palette.textDim)),
-              ]),
+              child: Row(
+                children: [
+                  const Text(
+                    'Connection details',
+                    style: TextStyle(fontFamily: Fonts.display, fontSize: 19, fontWeight: FontWeight.w700),
+                  ),
+                  const Spacer(),
+                  IconButton(
+                    onPressed: () => Navigator.pop(context),
+                    icon: const Icon(Icons.close_rounded, color: Palette.textDim),
+                  ),
+                ],
+              ),
             ),
             Expanded(
               child: ListView(
@@ -91,10 +105,12 @@ class _DetailsState extends State<_Details> {
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
                       child: c.featureSlots.isEmpty
                           ? const _Row('General settings', 'none reported yet')
-                          : Column(children: [
-                              for (final f in c.featureSlots)
-                                _Row('Slot 0x${f.slot.toRadixString(16).toUpperCase()}', '${f.name} · ${f.type}'),
-                            ]),
+                          : Column(
+                              children: [
+                                for (final f in c.featureSlots)
+                                  _Row('Slot 0x${f.slot.toRadixString(16).toUpperCase()}', '${f.name} · ${f.type}'),
+                              ],
+                            ),
                     ),
                   ),
                   const SizedBox(height: 18),
@@ -111,11 +127,24 @@ class _DetailsState extends State<_Details> {
                                   Padding(
                                     padding: const EdgeInsets.symmetric(vertical: 1.5),
                                     child: Text.rich(
-                                      TextSpan(children: [
-                                        TextSpan(text: l.tx ? 'TX  ' : 'RX  ', style: TextStyle(color: l.tx ? Palette.warn : Palette.accent, fontWeight: FontWeight.w800)),
-                                        TextSpan(text: l.hex),
-                                      ]),
-                                      style: const TextStyle(fontFamily: 'Menlo', fontFamilyFallback: ['Consolas', 'monospace'], fontSize: 11, color: Palette.textDim),
+                                      TextSpan(
+                                        children: [
+                                          TextSpan(
+                                            text: l.tx ? 'TX  ' : 'RX  ',
+                                            style: TextStyle(
+                                              color: l.tx ? Palette.warn : Palette.accent,
+                                              fontWeight: FontWeight.w800,
+                                            ),
+                                          ),
+                                          TextSpan(text: l.hex),
+                                        ],
+                                      ),
+                                      style: const TextStyle(
+                                        fontFamily: 'Menlo',
+                                        fontFamilyFallback: ['Consolas', 'monospace'],
+                                        fontSize: 11,
+                                        color: Palette.textDim,
+                                      ),
                                     ),
                                   ),
                               ],
@@ -139,10 +168,18 @@ class _Row extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8),
-        child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          SizedBox(width: 140, child: Text(label, style: const TextStyle(fontSize: 12.5, color: Palette.textDim))),
-          Expanded(child: SelectableText(value, style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600))),
-        ]),
-      );
+    padding: const EdgeInsets.symmetric(vertical: 8),
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          width: 140,
+          child: Text(label, style: const TextStyle(fontSize: 12.5, color: Palette.textDim)),
+        ),
+        Expanded(
+          child: SelectableText(value, style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600)),
+        ),
+      ],
+    ),
+  );
 }

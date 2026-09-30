@@ -34,10 +34,10 @@ ThemeData buildTheme() {
     highlightColor: Colors.transparent,
     hoverColor: Colors.white.withValues(alpha: 0.04),
     textTheme: ThemeData.dark().textTheme.apply(
-          fontFamily: Fonts.body,
-          bodyColor: Palette.text,
-          displayColor: Palette.text,
-        ),
+      fontFamily: Fonts.body,
+      bodyColor: Palette.text,
+      displayColor: Palette.text,
+    ),
     sliderTheme: SliderThemeData(
       trackHeight: 4,
       activeTrackColor: Palette.accent,

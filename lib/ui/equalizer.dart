@@ -18,10 +18,10 @@ class _EqualizerBandsState extends State<EqualizerBands> {
   List<double>? _drag;
 
   static List<String> _labels(int n) => switch (n) {
-        6 => const ['400', '1k', '2.5k', '6.3k', '16k', 'Bass'],
-        5 => const ['400', '1k', '2.5k', '6.3k', '16k'],
-        _ => List.generate(n, (i) => '${i + 1}'),
-      };
+    6 => const ['400', '1k', '2.5k', '6.3k', '16k', 'Bass'],
+    5 => const ['400', '1k', '2.5k', '6.3k', '16k'],
+    _ => List.generate(n, (i) => '${i + 1}'),
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -38,13 +38,20 @@ class _EqualizerBandsState extends State<EqualizerBands> {
                 children: [
                   Text(
                     '${(values[i] - 10).round() > 0 ? '+' : ''}${(values[i] - 10).round()}',
-                    style: const TextStyle(fontFamily: Fonts.display, fontSize: 11, fontWeight: FontWeight.w600, color: Palette.textDim),
+                    style: const TextStyle(
+                      fontFamily: Fonts.display,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: Palette.textDim,
+                    ),
                   ),
                   Expanded(
                     child: RotatedBox(
                       quarterTurns: 3,
                       child: SliderTheme(
-                        data: SliderTheme.of(context).copyWith(trackHeight: 3, thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6)),
+                        data: SliderTheme.of(
+                          context,
+                        ).copyWith(trackHeight: 3, thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6)),
                         child: Slider(
                           min: 0,
                           max: 20,
@@ -52,9 +59,9 @@ class _EqualizerBandsState extends State<EqualizerBands> {
                           value: values[i].clamp(0, 20),
                           onChanged: widget.enabled
                               ? (v) => setState(() {
-                                    _drag ??= List.of(values);
-                                    _drag![i] = v;
-                                  })
+                                  _drag ??= List.of(values);
+                                  _drag![i] = v;
+                                })
                               : null,
                           onChangeEnd: (_) {
                             final out = _drag!.map((e) => e.round()).toList();
@@ -65,7 +72,10 @@ class _EqualizerBandsState extends State<EqualizerBands> {
                       ),
                     ),
                   ),
-                  Text(labels[i], style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w600, color: Palette.textDim)),
+                  Text(
+                    labels[i],
+                    style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w600, color: Palette.textDim),
+                  ),
                 ],
               ),
             ),

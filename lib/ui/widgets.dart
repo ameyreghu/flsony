@@ -65,7 +65,13 @@ class SegmentOption<T> {
 
 /// Big three-way selector used for the noise-control mode.
 class Segmented<T> extends StatelessWidget {
-  const Segmented({super.key, required this.options, required this.value, required this.onChanged, required this.enabled});
+  const Segmented({
+    super.key,
+    required this.options,
+    required this.value,
+    required this.onChanged,
+    required this.enabled,
+  });
   final List<SegmentOption<T>> options;
   final T? value;
   final ValueChanged<T> onChanged;
@@ -123,7 +129,14 @@ class Segmented<T> extends StatelessWidget {
 }
 
 class ToggleRow extends StatelessWidget {
-  const ToggleRow({super.key, required this.icon, required this.title, required this.subtitle, required this.value, required this.onChanged});
+  const ToggleRow({
+    super.key,
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.value,
+    required this.onChanged,
+  });
   final IconData icon;
   final String title;
   final String subtitle;
@@ -218,7 +231,11 @@ class Chip2 extends StatelessWidget {
           ),
           child: Text(
             label,
-            style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700, color: selected ? Palette.accent : Palette.textDim),
+            style: TextStyle(
+              fontSize: 12.5,
+              fontWeight: FontWeight.w700,
+              color: selected ? Palette.accent : Palette.textDim,
+            ),
           ),
         ),
       ),
