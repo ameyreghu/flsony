@@ -1,4 +1,5 @@
 import Cocoa
+import CoreBluetooth
 import FlutterMacOS
 import IOBluetooth
 
@@ -17,6 +18,9 @@ final class BluetoothPlugin: NSObject, FlutterStreamHandler {
   private var rfcommChannelID: BluetoothRFCOMMChannelID = 0
   private var connectNote: IOBluetoothUserNotification?
   private var disconnectNote: IOBluetoothUserNotification?
+  private var permissionProbe: CBCentralManager?
+  private var pendingMonitor = false
+  private var pendingConnect = false
 
   static func register(with messenger: FlutterBinaryMessenger) {
     let plugin = BluetoothPlugin()
@@ -74,7 +78,41 @@ final class BluetoothPlugin: NSObject, FlutterStreamHandler {
     (IOBluetoothDevice.pairedDevices() as? [IOBluetoothDevice])?.first(where: isTarget)
   }
 
+  // MARK: Permission
+  //
+  // The first IOBluetooth call blocks the main thread until the user answers
+  // the Bluetooth permission prompt. Flutter's Dart code shares that thread,
+  // so the window would stay black. Ask through CoreBluetooth instead (it
+  // doesn't block) and only touch IOBluetooth once access is granted.
+
+  private enum Access { case allowed, pending, denied }
+
+  private var access: Access {
+    switch CBManager.authorization {
+    case .allowedAlways: return .allowed
+    case .notDetermined: return .pending
+    default: return .denied
+    }
+  }
+
+  private func requestAccess() {
+    if permissionProbe == nil { permissionProbe = CBCentralManager(delegate: self, queue: nil) }
+  }
+
+  private func reportDenied() {
+    emit(["type": "reachable", "value": false])
+    status("failed", reason: "Bluetooth access is off for Sony Connect. Turn it on in System Settings → Privacy & Security → Bluetooth.")
+  }
+
   private func startMonitoring() {
+    switch access {
+    case .allowed: beginMonitoring()
+    case .pending: pendingMonitor = true; requestAccess()
+    case .denied: reportDenied()
+    }
+  }
+
+  private func beginMonitoring() {
     connectNote = IOBluetoothDevice.register(forConnectNotifications: self, selector: #selector(aclConnected(_:device:)))
     if let d = targetDevice(), d.isConnected() {
       watchDisconnect(d)
@@ -104,6 +142,11 @@ final class BluetoothPlugin: NSObject, FlutterStreamHandler {
 
   private func connect() {
     guard channel == nil, !connecting else { return }
+    switch access {
+    case .allowed: break
+    case .pending: pendingConnect = true; requestAccess(); return
+    case .denied: return reportDenied()
+    }
     guard let device = targetDevice() else {
       return status("failed", reason: "No paired Sony WH-1000XM headphones found. Pair them in System Settings → Bluetooth.")
     }
@@ -190,5 +233,23 @@ extension BluetoothPlugin: IOBluetoothRFCOMMChannelDelegate {
   func rfcommChannelClosed(_ ch: IOBluetoothRFCOMMChannel!) {
     channel = nil
     status("disconnected")
+  }
+}
+
+extension BluetoothPlugin: CBCentralManagerDelegate {
+  // Called again once the user answers the permission prompt.
+  func centralManagerDidUpdateState(_ central: CBCentralManager) {
+    switch access {
+    case .pending:
+      return
+    case .denied:
+      reportDenied()
+    case .allowed:
+      if pendingMonitor { beginMonitoring() }
+      if pendingConnect { connect() }
+    }
+    pendingMonitor = false
+    pendingConnect = false
+    permissionProbe = nil
   }
 }
