@@ -87,7 +87,7 @@ class _DetailsState extends State<_Details> {
               child: Panel(
                 padding: const EdgeInsets.all(12),
                 child: c.packetLog.isEmpty
-                    ? const Text('No traffic yet.', style: TextStyle(color: Palette.textDim, fontSize: 12))
+                    ? Text('No traffic yet.', style: TextStyle(color: context.colors.textDim, fontSize: 12))
                     : Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -100,18 +100,18 @@ class _DetailsState extends State<_Details> {
                                     TextSpan(
                                       text: l.tx ? 'TX  ' : 'RX  ',
                                       style: TextStyle(
-                                        color: l.tx ? Palette.warn : Palette.accent,
+                                        color: l.tx ? context.colors.warn : context.colors.accentInk,
                                         fontWeight: FontWeight.w800,
                                       ),
                                     ),
                                     TextSpan(text: l.hex),
                                   ],
                                 ),
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontFamily: 'Menlo',
                                   fontFamilyFallback: ['Consolas', 'monospace'],
                                   fontSize: 11,
-                                  color: Palette.textDim,
+                                  color: context.colors.textDim,
                                 ),
                               ),
                             ),
@@ -139,7 +139,7 @@ class _Row extends StatelessWidget {
       children: [
         SizedBox(
           width: 140,
-          child: Text(label, style: const TextStyle(fontSize: 12.5, color: Palette.textDim)),
+          child: Text(label, style: TextStyle(fontSize: 12.5, color: context.colors.textDim)),
         ),
         Expanded(
           child: SelectableText(value, style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600)),

@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart' show Color, ThemeMode;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'sound_profile.dart';
@@ -18,6 +19,23 @@ class AppSettings extends ChangeNotifier {
 
   void _set(String key, bool value) {
     _prefs.setBool(key, value);
+    notifyListeners();
+  }
+
+  // --- Appearance ---------------------------------------------------------
+  static const defaultAccent = Color(0xFF5EE6C8); // Mint
+
+  ThemeMode get themeMode => ThemeMode.values.asNameMap()[_prefs.getString('appearance.themeMode')] ?? ThemeMode.system;
+
+  set themeMode(ThemeMode v) {
+    _prefs.setString('appearance.themeMode', v.name);
+    notifyListeners();
+  }
+
+  Color get accent => Color(_prefs.getInt('appearance.accent') ?? defaultAccent.toARGB32());
+
+  set accent(Color v) {
+    _prefs.setInt('appearance.accent', v.toARGB32());
     notifyListeners();
   }
 

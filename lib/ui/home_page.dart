@@ -26,72 +26,106 @@ class HomePage extends StatelessWidget {
         final ready = c.isReady;
         return Scaffold(
           body: SafeArea(
-            child: ListView(
-              padding: EdgeInsets.fromLTRB(
-                20,
-                Platform.isMacOS ? 34 : 18,
-                20,
-                24,
-              ).add(EdgeInsets.symmetric(horizontal: _sideInset(context))),
+            child: Stack(
               children: [
-                _Header(c: c, settings: settings),
-                const SizedBox(height: 22),
-                if (!ready) _StatusBanner(c: c),
-                AnimatedOpacity(
-                  opacity: ready ? 1 : 0.4,
-                  duration: const Duration(milliseconds: 250),
-                  child: IgnorePointer(
-                    ignoring: !ready,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        if (settings.profilesEnabled) ...[
-                          ProfilesSection(controller: c, settings: settings),
-                          const SizedBox(height: 22),
-                        ],
-                        Section(
-                          title: 'Sound control',
-                          child: _NoiseControl(c: c),
-                        ),
-                        const SizedBox(height: 22),
-                        Section(
-                          title: 'Features',
-                          child: Panel(
-                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                            child: Column(
-                              children: [
-                                ToggleRow(
-                                  icon: Icons.record_voice_over_rounded,
-                                  title: 'Speak-to-Chat',
-                                  subtitle: 'Pauses music when you start talking',
-                                  value: c.speakToChat,
-                                  onChanged: c.toggleSpeakToChat,
-                                ),
-                                const Divider(height: 1, color: Palette.hairline),
-                                ToggleRow(
-                                  icon: Icons.touch_app_rounded,
-                                  title: 'Touch sensor',
-                                  subtitle: 'Swipe and tap on the right earcup',
-                                  value: c.touchSensor,
-                                  onChanged: c.toggleTouchSensor,
-                                ),
-                              ],
+                ListView(
+                  padding: EdgeInsets.fromLTRB(
+                    20,
+                    Platform.isMacOS ? 34 : 18,
+                    20,
+                    24,
+                  ).add(EdgeInsets.symmetric(horizontal: _sideInset(context))),
+                  children: [
+                    _Header(c: c, settings: settings),
+                    const SizedBox(height: 22),
+                    if (!ready) _StatusBanner(c: c),
+                    AnimatedOpacity(
+                      opacity: ready ? 1 : 0.4,
+                      duration: const Duration(milliseconds: 250),
+                      child: IgnorePointer(
+                        ignoring: !ready,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            if (settings.profilesEnabled) ...[
+                              ProfilesSection(controller: c, settings: settings),
+                              const SizedBox(height: 22),
+                            ],
+                            Section(
+                              title: 'Sound control',
+                              child: _NoiseControl(c: c),
                             ),
-                          ),
+                            const SizedBox(height: 22),
+                            Section(
+                              title: 'Features',
+                              child: Panel(
+                                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                                child: Column(
+                                  children: [
+                                    ToggleRow(
+                                      icon: Icons.record_voice_over_rounded,
+                                      title: 'Speak-to-Chat',
+                                      subtitle: 'Pauses music when you start talking',
+                                      value: c.speakToChat,
+                                      onChanged: c.toggleSpeakToChat,
+                                    ),
+                                    Divider(height: 1, color: context.colors.hairline),
+                                    ToggleRow(
+                                      icon: Icons.touch_app_rounded,
+                                      title: 'Touch sensor',
+                                      subtitle: 'Swipe and tap on the right earcup',
+                                      value: c.touchSensor,
+                                      onChanged: c.toggleTouchSensor,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 22),
+                            _Equalizer(c: c),
+                            const SizedBox(height: 26),
+                            _PowerOff(c: c),
+                          ],
                         ),
-                        const SizedBox(height: 22),
-                        _Equalizer(c: c),
-                        const SizedBox(height: 26),
-                        _PowerOff(c: c),
-                      ],
+                      ),
                     ),
-                  ),
+                  ],
                 ),
+                if (Platform.isMacOS) const _TitleStrip(),
               ],
             ),
           ),
         );
       },
+    );
+  }
+}
+
+/// With the title bar hidden, content would scroll under the traffic lights.
+/// This strip fades it out and lets the window be dragged from the top edge.
+class _TitleStrip extends StatelessWidget {
+  const _TitleStrip();
+
+  @override
+  Widget build(BuildContext context) {
+    final bg = context.colors.bg;
+    return Positioned(
+      top: 0,
+      left: 0,
+      right: 0,
+      height: 30,
+      child: DragToMoveArea(
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [bg, bg, bg.withValues(alpha: 0)],
+              stops: const [0, 0.7, 1],
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
@@ -104,10 +138,10 @@ class _Header extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final (label, color) = switch (c.phase) {
-      Phase.ready => ('Connected', Palette.accent),
-      Phase.connecting => ('Connecting…', Palette.warn),
-      Phase.idle => ('Standby', Palette.warn),
-      Phase.unavailable => ('Not connected', Palette.textDim),
+      Phase.ready => ('Connected', context.colors.accentInk),
+      Phase.connecting => ('Connecting…', context.colors.warn),
+      Phase.idle => ('Standby', context.colors.warn),
+      Phase.unavailable => ('Not connected', context.colors.textDim),
     };
     return Row(
       children: [
@@ -117,7 +151,24 @@ class _Header extends StatelessWidget {
           child: DragToMoveArea(
             child: Row(
               children: [
-                Image.asset('assets/icon/mark.png', width: 44, height: 44, filterQuality: FilterQuality.medium),
+                // The mark is tinted with the accent so it reads on light and dark.
+                ShaderMask(
+                  blendMode: BlendMode.srcIn,
+                  shaderCallback: (rect) => LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      Color.lerp(context.colors.text, context.colors.accentInk, 0.35)!,
+                      context.colors.accentInk,
+                    ],
+                  ).createShader(rect),
+                  child: Image.asset(
+                    'assets/icon/mark.png',
+                    width: 44,
+                    height: 44,
+                    filterQuality: FilterQuality.medium,
+                  ),
+                ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
@@ -145,7 +196,11 @@ class _Header extends StatelessWidget {
                           const SizedBox(width: 6),
                           Text(
                             label,
-                            style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600, color: Palette.textDim),
+                            style: TextStyle(
+                              fontSize: 12.5,
+                              fontWeight: FontWeight.w600,
+                              color: context.colors.textDim,
+                            ),
                           ),
                         ],
                       ),
@@ -160,12 +215,12 @@ class _Header extends StatelessWidget {
         IconButton(
           tooltip: 'Connection details',
           onPressed: () => showConnectionDetails(context, c),
-          icon: const Icon(Icons.info_outline_rounded, size: 20, color: Palette.textDim),
+          icon: Icon(Icons.info_outline_rounded, size: 20, color: context.colors.textDim),
         ),
         IconButton(
           tooltip: 'Settings',
           onPressed: () => showSettings(context, settings),
-          icon: const Icon(Icons.tune_rounded, size: 20, color: Palette.textDim),
+          icon: Icon(Icons.tune_rounded, size: 20, color: context.colors.textDim),
         ),
       ],
     );
@@ -183,9 +238,9 @@ class _Battery extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: Palette.surface,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: Palette.hairline),
+        border: Border.all(color: context.colors.hairline),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -193,7 +248,7 @@ class _Battery extends StatelessWidget {
           Icon(
             charging ? Icons.bolt_rounded : Icons.battery_std_rounded,
             size: 16,
-            color: low ? Palette.danger : Palette.accent,
+            color: low ? context.colors.danger : context.colors.accentInk,
           ),
           const SizedBox(width: 4),
           Text(
@@ -226,16 +281,16 @@ class _StatusBanner extends StatelessWidget {
         child: Row(
           children: [
             if (busy)
-              const SizedBox(
+              SizedBox(
                 width: 16,
                 height: 16,
-                child: CircularProgressIndicator(strokeWidth: 2, color: Palette.accent),
+                child: CircularProgressIndicator(strokeWidth: 2, color: context.colors.accentInk),
               )
             else
-              const Icon(Icons.bluetooth_disabled_rounded, size: 18, color: Palette.textDim),
+              Icon(Icons.bluetooth_disabled_rounded, size: 18, color: context.colors.textDim),
             const SizedBox(width: 12),
             Expanded(
-              child: Text(text, style: const TextStyle(fontSize: 13, height: 1.4, color: Palette.textDim)),
+              child: Text(text, style: TextStyle(fontSize: 13, height: 1.4, color: context.colors.textDim)),
             ),
             if (!busy)
               TextButton(
@@ -294,11 +349,11 @@ class _NoiseControlState extends State<_NoiseControl> {
                             const Spacer(),
                             Text(
                               '${level.round()}',
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontFamily: Fonts.display,
                                 fontSize: 15,
                                 fontWeight: FontWeight.w700,
-                                color: Palette.accent,
+                                color: context.colors.accentInk,
                               ),
                             ),
                           ],
@@ -363,9 +418,9 @@ class _EqualizerState extends State<_Equalizer> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (c.eqPresets.isEmpty)
-              const Text(
+              Text(
                 'Presets and bands appear once the headphones are connected.',
-                style: TextStyle(fontSize: 12.5, height: 1.4, color: Palette.textDim),
+                style: TextStyle(fontSize: 12.5, height: 1.4, color: context.colors.textDim),
               ),
             Wrap(
               spacing: 8,
@@ -384,11 +439,11 @@ class _EqualizerState extends State<_Equalizer> {
               AnimatedSize(
                 duration: const Duration(milliseconds: 180),
                 child: _editing
-                    ? const Padding(
+                    ? Padding(
                         padding: EdgeInsets.only(top: 10),
                         child: Text(
                           'Changes are saved to the selected Custom slot as you release a slider.',
-                          style: TextStyle(fontSize: 12, color: Palette.textDim),
+                          style: TextStyle(fontSize: 12, color: context.colors.textDim),
                         ),
                       )
                     : const SizedBox(width: double.infinity),
@@ -412,20 +467,20 @@ class _PowerOff extends StatelessWidget {
         final ok = await showDialog<bool>(
           context: context,
           builder: (ctx) => AlertDialog(
-            backgroundColor: Palette.surface,
+            backgroundColor: context.colors.surface,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
             title: const Text('Power off headphones?', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
-            content: const Text(
+            content: Text(
               'They will switch off and Bluetooth will disconnect.',
-              style: TextStyle(color: Palette.textDim),
+              style: TextStyle(color: context.colors.textDim),
             ),
             actions: [
               TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
               TextButton(
                 onPressed: () => Navigator.pop(ctx, true),
-                child: const Text(
+                child: Text(
                   'Power off',
-                  style: TextStyle(color: Palette.danger, fontWeight: FontWeight.w800),
+                  style: TextStyle(color: context.colors.danger, fontWeight: FontWeight.w800),
                 ),
               ),
             ],
@@ -436,8 +491,8 @@ class _PowerOff extends StatelessWidget {
       icon: const Icon(Icons.power_settings_new_rounded, size: 18),
       label: const Text('Power off headphones'),
       style: OutlinedButton.styleFrom(
-        foregroundColor: Palette.danger,
-        side: BorderSide(color: Palette.danger.withValues(alpha: 0.35)),
+        foregroundColor: context.colors.danger,
+        side: BorderSide(color: context.colors.danger.withValues(alpha: 0.35)),
         padding: const EdgeInsets.symmetric(vertical: 16),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         textStyle: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14),

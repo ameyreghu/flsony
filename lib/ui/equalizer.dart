@@ -38,11 +38,11 @@ class _EqualizerBandsState extends State<EqualizerBands> {
                 children: [
                   Text(
                     '${(values[i] - 10).round() > 0 ? '+' : ''}${(values[i] - 10).round()}',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontFamily: Fonts.display,
                       fontSize: 11,
                       fontWeight: FontWeight.w600,
-                      color: Palette.textDim,
+                      color: context.colors.textDim,
                     ),
                   ),
                   Expanded(
@@ -74,7 +74,7 @@ class _EqualizerBandsState extends State<EqualizerBands> {
                   ),
                   Text(
                     labels[i],
-                    style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w600, color: Palette.textDim),
+                    style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w600, color: context.colors.textDim),
                   ),
                 ],
               ),

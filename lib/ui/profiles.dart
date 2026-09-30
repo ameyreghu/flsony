@@ -21,9 +21,9 @@ class ProfilesSection extends StatelessWidget {
       trailing: LinkButton('Save current', onTap: () => _save(context, profiles)),
       child: Panel(
         child: profiles.isEmpty
-            ? const Text(
+            ? Text(
                 'Save your current settings as a profile to switch back to them in one click.',
-                style: TextStyle(fontSize: 12.5, height: 1.4, color: Palette.textDim),
+                style: TextStyle(fontSize: 12.5, height: 1.4, color: context.colors.textDim),
               )
             : Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -45,9 +45,9 @@ class ProfilesSection extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 10),
-                  const Text(
+                  Text(
                     'Right-click a profile to delete it.',
-                    style: TextStyle(fontSize: 11.5, color: Palette.textDim),
+                    style: TextStyle(fontSize: 11.5, color: context.colors.textDim),
                   ),
                 ],
               ),
@@ -62,12 +62,12 @@ class ProfilesSection extends StatelessWidget {
       ..showSnackBar(
         SnackBar(
           behavior: SnackBarBehavior.floating,
-          backgroundColor: Palette.surfaceHi,
+          backgroundColor: context.colors.surfaceHi,
           duration: const Duration(seconds: 2),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
           content: Text(
             'Applied “${p.name}”',
-            style: const TextStyle(color: Palette.text, fontWeight: FontWeight.w700),
+            style: TextStyle(color: context.colors.text, fontWeight: FontWeight.w700),
           ),
         ),
       );
@@ -88,16 +88,16 @@ class ProfilesSection extends StatelessWidget {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: Palette.surface,
+        backgroundColor: context.colors.surface,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Text('Delete “${target.name}”?', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
         actions: [
           TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text(
+            child: Text(
               'Delete',
-              style: TextStyle(color: Palette.danger, fontWeight: FontWeight.w800),
+              style: TextStyle(color: context.colors.danger, fontWeight: FontWeight.w800),
             ),
           ),
         ],
@@ -143,7 +143,7 @@ class _NameDialogState extends State<_NameDialog> {
   Widget build(BuildContext context) {
     void submit() => Navigator.pop(context, _text.text);
     return AlertDialog(
-      backgroundColor: Palette.surface,
+      backgroundColor: context.colors.surface,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       title: const Text('Save profile', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
       content: TextField(

@@ -12,6 +12,8 @@ import 'ui/theme.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  final settings = await AppSettings.load();
+
   await windowManager.ensureInitialized();
   await windowManager.waitUntilReadyToShow(
     WindowOptions(
@@ -19,7 +21,7 @@ Future<void> main() async {
       minimumSize: const Size(380, 560),
       center: true,
       title: 'FlSony',
-      backgroundColor: Palette.bg,
+      backgroundColor: AppColors.of(_brightness(settings.themeMode), settings.accent).bg,
       titleBarStyle: Platform.isMacOS ? TitleBarStyle.hidden : TitleBarStyle.normal,
     ),
     () async {
@@ -28,7 +30,6 @@ Future<void> main() async {
     },
   );
 
-  final settings = await AppSettings.load();
   final system = SystemBridge();
   final controller = HeadphonesController()
     ..beforePowerOff = () async {
@@ -43,6 +44,12 @@ Future<void> main() async {
   runApp(FlSonyApp(controller: controller, settings: settings));
 }
 
+Brightness _brightness(ThemeMode mode) => switch (mode) {
+  ThemeMode.light => Brightness.light,
+  ThemeMode.dark => Brightness.dark,
+  ThemeMode.system => WidgetsBinding.instance.platformDispatcher.platformBrightness,
+};
+
 class FlSonyApp extends StatelessWidget {
   const FlSonyApp({super.key, required this.controller, required this.settings});
   final HeadphonesController controller;
@@ -50,11 +57,16 @@ class FlSonyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'FlSony',
-      debugShowCheckedModeBanner: false,
-      theme: buildTheme(),
-      home: HomePage(controller: controller, settings: settings),
+    return ListenableBuilder(
+      listenable: settings,
+      builder: (context, _) => MaterialApp(
+        title: 'FlSony',
+        debugShowCheckedModeBanner: false,
+        theme: buildTheme(Brightness.light, settings.accent),
+        darkTheme: buildTheme(Brightness.dark, settings.accent),
+        themeMode: settings.themeMode,
+        home: HomePage(controller: controller, settings: settings),
+      ),
     );
   }
 }

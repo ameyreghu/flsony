@@ -19,11 +19,11 @@ class Section extends StatelessWidget {
             children: [
               Text(
                 title.toUpperCase(),
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 11,
                   letterSpacing: 1.4,
                   fontWeight: FontWeight.w700,
-                  color: Palette.textDim,
+                  color: context.colors.textDim,
                 ),
               ),
               const Spacer(),
@@ -47,9 +47,9 @@ class Panel extends StatelessWidget {
     return Container(
       padding: padding,
       decoration: BoxDecoration(
-        color: Palette.surface,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Palette.hairline),
+        border: Border.all(color: context.colors.hairline),
       ),
       child: child,
     );
@@ -71,8 +71,10 @@ class Segmented<T> extends StatelessWidget {
     required this.value,
     required this.onChanged,
     required this.enabled,
+    this.height = 84,
   });
   final List<SegmentOption<T>> options;
+  final double height;
   final T? value;
   final ValueChanged<T> onChanged;
   final bool enabled;
@@ -83,13 +85,13 @@ class Segmented<T> extends StatelessWidget {
       children: [
         for (var i = 0; i < options.length; i++) ...[
           if (i > 0) const SizedBox(width: 8),
-          Expanded(child: _tile(options[i])),
+          Expanded(child: _tile(context, options[i])),
         ],
       ],
     );
   }
 
-  Widget _tile(SegmentOption<T> o) {
+  Widget _tile(BuildContext context, SegmentOption<T> o) {
     final selected = o.value == value;
     return MouseRegion(
       cursor: enabled ? SystemMouseCursors.click : MouseCursor.defer,
@@ -99,25 +101,25 @@ class Segmented<T> extends StatelessWidget {
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 180),
           curve: Curves.easeOutCubic,
-          height: 84,
+          height: height,
           decoration: BoxDecoration(
-            color: selected ? Palette.accent : Palette.surfaceHi,
+            color: selected ? context.colors.accent : context.colors.surfaceHi,
             borderRadius: BorderRadius.circular(16),
             boxShadow: selected
-                ? [BoxShadow(color: Palette.accent.withValues(alpha: 0.28), blurRadius: 22, spreadRadius: -4)]
+                ? [BoxShadow(color: context.colors.accent.withValues(alpha: 0.28), blurRadius: 22, spreadRadius: -4)]
                 : const [],
           ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(o.icon, size: 24, color: selected ? const Color(0xFF04201A) : Palette.textDim),
+              Icon(o.icon, size: 24, color: selected ? context.colors.onAccent : context.colors.textDim),
               const SizedBox(height: 8),
               Text(
                 o.label,
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
-                  color: selected ? const Color(0xFF04201A) : Palette.textDim,
+                  color: selected ? context.colors.onAccent : context.colors.textDim,
                 ),
               ),
             ],
@@ -156,8 +158,8 @@ class ToggleRow extends StatelessWidget {
             Container(
               width: 38,
               height: 38,
-              decoration: BoxDecoration(color: Palette.surfaceHi, borderRadius: BorderRadius.circular(12)),
-              child: Icon(icon, size: 19, color: on ? Palette.accent : Palette.textDim),
+              decoration: BoxDecoration(color: context.colors.surfaceHi, borderRadius: BorderRadius.circular(12)),
+              child: Icon(icon, size: 19, color: on ? context.colors.accentInk : context.colors.textDim),
             ),
             const SizedBox(width: 14),
             Expanded(
@@ -166,7 +168,7 @@ class ToggleRow extends StatelessWidget {
                 children: [
                   Text(title, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
                   const SizedBox(height: 2),
-                  Text(subtitle, style: const TextStyle(fontSize: 12, color: Palette.textDim)),
+                  Text(subtitle, style: TextStyle(fontSize: 12, color: context.colors.textDim)),
                 ],
               ),
             ),
@@ -195,14 +197,17 @@ class _Switch extends StatelessWidget {
         padding: const EdgeInsets.all(3),
         alignment: on ? Alignment.centerRight : Alignment.centerLeft,
         decoration: BoxDecoration(
-          color: on ? Palette.accent : Palette.surfaceHi,
+          color: on ? context.colors.accent : context.colors.surfaceHi,
           borderRadius: BorderRadius.circular(13),
-          border: Border.all(color: on ? Colors.transparent : Palette.hairline),
+          border: Border.all(color: on ? Colors.transparent : context.colors.hairline),
         ),
         child: Container(
           width: 20,
           height: 20,
-          decoration: BoxDecoration(color: on ? const Color(0xFF04201A) : Palette.textDim, shape: BoxShape.circle),
+          decoration: BoxDecoration(
+            color: on ? context.colors.onAccent : context.colors.textDim,
+            shape: BoxShape.circle,
+          ),
         ),
       ),
     );
@@ -225,16 +230,16 @@ class Chip2 extends StatelessWidget {
           duration: const Duration(milliseconds: 160),
           padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 8),
           decoration: BoxDecoration(
-            color: selected ? Palette.accent.withValues(alpha: 0.16) : Palette.surfaceHi,
+            color: selected ? context.colors.accent.withValues(alpha: 0.16) : context.colors.surfaceHi,
             borderRadius: BorderRadius.circular(999),
-            border: Border.all(color: selected ? Palette.accent.withValues(alpha: 0.7) : Colors.transparent),
+            border: Border.all(color: selected ? context.colors.accentInk.withValues(alpha: 0.7) : Colors.transparent),
           ),
           child: Text(
             label,
             style: TextStyle(
               fontSize: 12.5,
               fontWeight: FontWeight.w700,
-              color: selected ? Palette.accent : Palette.textDim,
+              color: selected ? context.colors.accentInk : context.colors.textDim,
             ),
           ),
         ),
@@ -248,11 +253,11 @@ Future<void> showPanelDialog(BuildContext context, {required String title, requi
   return showDialog<void>(
     context: context,
     builder: (ctx) => Dialog(
-      backgroundColor: Palette.bg,
+      backgroundColor: context.colors.bg,
       insetPadding: const EdgeInsets.all(14),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(24),
-        side: const BorderSide(color: Palette.hairline),
+        side: BorderSide(color: context.colors.hairline),
       ),
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 460, maxHeight: 680),
@@ -270,7 +275,7 @@ Future<void> showPanelDialog(BuildContext context, {required String title, requi
                   const Spacer(),
                   IconButton(
                     onPressed: () => Navigator.pop(ctx),
-                    icon: const Icon(Icons.close_rounded, color: Palette.textDim),
+                    icon: Icon(Icons.close_rounded, color: context.colors.textDim),
                   ),
                 ],
               ),
@@ -295,7 +300,7 @@ class LinkButton extends StatelessWidget {
       onTap: onTap,
       child: Text(
         label,
-        style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: Palette.accent),
+        style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: context.colors.accentInk),
       ),
     ),
   );

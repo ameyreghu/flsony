@@ -16,7 +16,7 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp(
-        theme: buildTheme(),
+        theme: buildTheme(Brightness.dark, AppSettings.defaultAccent),
         home: HomePage(controller: HeadphonesController(), settings: settings),
       ),
     );
@@ -41,7 +41,7 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp(
-        theme: buildTheme(),
+        theme: buildTheme(Brightness.dark, AppSettings.defaultAccent),
         home: HomePage(controller: HeadphonesController(), settings: settings),
       ),
     );

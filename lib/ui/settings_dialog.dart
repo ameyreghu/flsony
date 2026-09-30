@@ -25,16 +25,53 @@ class _Settings extends StatelessWidget {
         padding: const EdgeInsets.fromLTRB(18, 4, 18, 18),
         children: [
           Section(
+            title: 'Appearance',
+            child: Panel(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Segmented<ThemeMode>(
+                    enabled: true,
+                    height: 64,
+                    value: settings.themeMode,
+                    onChanged: (m) => settings.themeMode = m,
+                    options: const [
+                      SegmentOption(ThemeMode.system, 'System', Icons.brightness_auto_rounded),
+                      SegmentOption(ThemeMode.light, 'Light', Icons.light_mode_rounded),
+                      SegmentOption(ThemeMode.dark, 'Dark', Icons.dark_mode_rounded),
+                    ],
+                  ),
+                  const SizedBox(height: 18),
+                  const Text('Accent', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700)),
+                  const SizedBox(height: 10),
+                  Wrap(
+                    spacing: 10,
+                    runSpacing: 10,
+                    children: [
+                      for (final p in accentPresets)
+                        _Swatch(
+                          preset: p,
+                          selected: p.color.toARGB32() == settings.accent.toARGB32(),
+                          onTap: () => settings.accent = p.color,
+                        ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 22),
+          Section(
             title: 'Extras',
             trailing: const _Badge('Not in Sound Connect'),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const Padding(
+                Padding(
                   padding: EdgeInsets.fromLTRB(4, 0, 4, 12),
                   child: Text(
                     'Features this app adds on top of Sony\'s. All are off until you turn them on.',
-                    style: TextStyle(fontSize: 12.5, height: 1.4, color: Palette.textDim),
+                    style: TextStyle(fontSize: 12.5, height: 1.4, color: context.colors.textDim),
                   ),
                 ),
                 Panel(
@@ -48,7 +85,7 @@ class _Settings extends StatelessWidget {
                         value: settings.menuBarIcon,
                         onChanged: () => settings.menuBarIcon = !settings.menuBarIcon,
                       ),
-                      const Divider(height: 1, color: Palette.hairline),
+                      Divider(height: 1, color: context.colors.hairline),
                       ToggleRow(
                         icon: Icons.bookmarks_outlined,
                         title: 'Profiles',
@@ -56,7 +93,7 @@ class _Settings extends StatelessWidget {
                         value: settings.profilesEnabled,
                         onChanged: () => settings.profilesEnabled = !settings.profilesEnabled,
                       ),
-                      const Divider(height: 1, color: Palette.hairline),
+                      Divider(height: 1, color: context.colors.hairline),
                       ToggleRow(
                         icon: Icons.pause_circle_outline_rounded,
                         title: 'Pause media before power off',
@@ -86,10 +123,48 @@ class _Badge extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-    decoration: BoxDecoration(color: Palette.accent.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(999)),
+    decoration: BoxDecoration(
+      color: context.colors.accent.withValues(alpha: 0.12),
+      borderRadius: BorderRadius.circular(999),
+    ),
     child: Text(
       text,
-      style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w800, color: Palette.accent),
+      style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w800, color: context.colors.accentInk),
     ),
   );
+}
+
+class _Swatch extends StatelessWidget {
+  const _Swatch({required this.preset, required this.selected, required this.onTap});
+  final AccentPreset preset;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final onColor = AppColors.onColor(preset.color);
+    return Tooltip(
+      message: preset.name,
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        child: GestureDetector(
+          onTap: onTap,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 160),
+            width: 32,
+            height: 32,
+            padding: const EdgeInsets.all(3),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(color: selected ? context.colors.text : Colors.transparent, width: 2),
+            ),
+            child: DecoratedBox(
+              decoration: BoxDecoration(color: preset.color, shape: BoxShape.circle),
+              child: selected ? Icon(Icons.check_rounded, size: 16, color: onColor) : null,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }
