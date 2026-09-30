@@ -1,5 +1,9 @@
+import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import 'sound_profile.dart';
 
 /// Persisted app preferences. "Extras" are features Sony's Sound Connect
 /// app doesn't have; each one is opt-in and off by default.
@@ -23,4 +27,17 @@ class AppSettings extends ChangeNotifier {
 
   bool get menuBarIcon => _get('extras.menuBarIcon', false);
   set menuBarIcon(bool v) => _set('extras.menuBarIcon', v);
+
+  bool get profilesEnabled => _get('extras.profiles', false);
+  set profilesEnabled(bool v) => _set('extras.profiles', v);
+
+  List<SoundProfile> get profiles => [
+    for (final raw in _prefs.getStringList('extras.profiles.list') ?? const <String>[])
+      SoundProfile.fromJson(jsonDecode(raw) as Map<String, Object?>),
+  ];
+
+  set profiles(List<SoundProfile> value) {
+    _prefs.setStringList('extras.profiles.list', [for (final p in value) jsonEncode(p.toJson())]);
+    notifyListeners();
+  }
 }

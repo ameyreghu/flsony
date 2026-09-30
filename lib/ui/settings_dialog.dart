@@ -49,6 +49,14 @@ class _Settings extends StatelessWidget {
                       ),
                       const Divider(height: 1, color: Palette.hairline),
                       ToggleRow(
+                        icon: Icons.bookmarks_outlined,
+                        title: 'Profiles',
+                        subtitle: 'Save sound setups and switch in one click',
+                        value: settings.profilesEnabled,
+                        onChanged: () => settings.profilesEnabled = !settings.profilesEnabled,
+                      ),
+                      const Divider(height: 1, color: Palette.hairline),
+                      ToggleRow(
                         icon: Icons.pause_circle_outline_rounded,
                         title: 'Pause media before power off',
                         subtitle: 'So music doesn\'t jump to your speakers',

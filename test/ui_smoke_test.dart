@@ -31,4 +31,25 @@ void main() {
     await tester.pump();
     expect(settings.pauseBeforePowerOff, isTrue);
   });
+
+  testWidgets('profiles section appears only when the extra is enabled', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final settings = await AppSettings.load();
+    tester.view.physicalSize = const Size(420, 780);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: buildTheme(),
+        home: HomePage(controller: HeadphonesController(), settings: settings),
+      ),
+    );
+    expect(find.text('PROFILES'), findsNothing);
+
+    settings.profilesEnabled = true;
+    await tester.pump();
+    expect(find.text('PROFILES'), findsOneWidget);
+    expect(find.text('Save current'), findsOneWidget);
+  });
 }

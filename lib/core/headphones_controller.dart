@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 
 import 'bluetooth_bridge.dart';
 import 'sony_packet.dart';
+import 'sound_profile.dart';
 
 enum NcMode { noiseCancelling, ambient, off }
 
@@ -156,11 +157,12 @@ class HeadphonesController extends ChangeNotifier {
     if (ncMode == NcMode.ambient) _sendNcasm(NcMode.ambient);
   }
 
-  void toggleSpeakToChat() {
+  void toggleSpeakToChat() => setSpeakToChat(!(speakToChat ?? false));
+
+  void setSpeakToChat(bool on) {
     if (!isReady) return;
-    final next = !(speakToChat ?? false);
-    _send([_Op.systemSet, _Op.smartTalking, 0x01, next ? 1 : 0]);
-    speakToChat = next;
+    _send([_Op.systemSet, _Op.smartTalking, 0x01, on ? 1 : 0]);
+    speakToChat = on;
     notifyListeners();
     _later(300, () => _send([_Op.systemGet, _Op.smartTalking]));
   }
@@ -174,16 +176,64 @@ class HeadphonesController extends ChangeNotifier {
   }
 
   void setEqBands(List<int> bands) {
-    if (!isReady || bands.isEmpty) return;
-    // Custom values must go out under UNSPECIFIED (0xFF) to persist; 0xA0 is
-    // a volatile preview the headphones drop on the next session.
     final slot = eqPresetId;
-    final target = slot != null && slot >= 0xA1 && slot <= 0xA5 ? slot : _Op.eqUnspecified;
+    _writeEqBands(bands, slot != null && _isUserSlot(slot) ? slot : _Op.eqUnspecified);
+  }
+
+  static bool _isUserSlot(int id) => id >= 0xA1 && id <= 0xA5;
+
+  /// Edits go into the selected Custom slot (0xA1…); otherwise they go out
+  /// under UNSPECIFIED (0xFF), which persists — 0xA0 is a volatile preview
+  /// the headphones drop on the next session.
+  void _writeEqBands(List<int> bands, int target) {
+    if (!isReady || bands.isEmpty) return;
     _send([_Op.eqSetParam, _Op.eqPresetType, target, bands.length, ...bands.map((b) => b.clamp(0, 20))]);
     if (target == _Op.eqUnspecified) eqPresetId = _Op.eqCustom;
     eqBands = List.unmodifiable(bands);
     notifyListeners();
     _later(300, () => _send([_Op.eqGetParam, _Op.eqPresetType]));
+  }
+
+  // --- Profiles -----------------------------------------------------------
+  SoundProfile captureProfile(String name) {
+    final id = eqPresetId;
+    final unsavedCurve = id == _Op.eqCustom || id == _Op.eqUnspecified;
+    return SoundProfile(
+      name: name,
+      ncMode: ncMode,
+      ambientLevel: ambientLevel,
+      focusOnVoice: ambientFocusOnVoice,
+      speakToChat: speakToChat,
+      eqPresetId: id,
+      eqBands: unsavedCurve ? eqBands : const [],
+    );
+  }
+
+  /// Applies a profile as a short sequence of commands, spaced out so the
+  /// headphones handle each one before the next arrives.
+  Future<void> applyProfile(SoundProfile p) async {
+    const gap = Duration(milliseconds: 350);
+    if (!isReady) return;
+    if (p.ncMode != null) {
+      ambientLevel = p.ambientLevel.clamp(0, maxAmbientLevel);
+      _asmId = p.focusOnVoice ? 0x01 : 0x00;
+      ambientFocusOnVoice = p.focusOnVoice;
+      setNcMode(p.ncMode!);
+      await Future<void>.delayed(gap);
+    }
+    if (!isReady) return;
+    if (p.speakToChat != null && p.speakToChat != speakToChat) {
+      setSpeakToChat(p.speakToChat!);
+      await Future<void>.delayed(gap);
+    }
+    if (!isReady) return;
+    final id = p.eqPresetId;
+    if (id == null) return;
+    if ((id == _Op.eqCustom || id == _Op.eqUnspecified) && p.eqBands.isNotEmpty) {
+      _writeEqBands(p.eqBands, _Op.eqUnspecified);
+    } else {
+      setEqPreset(id);
+    }
   }
 
   /// Runs before the power-off command is sent (e.g. pausing media so it

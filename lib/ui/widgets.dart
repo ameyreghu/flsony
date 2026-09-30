@@ -282,3 +282,21 @@ Future<void> showPanelDialog(BuildContext context, {required String title, requi
     ),
   );
 }
+
+class LinkButton extends StatelessWidget {
+  const LinkButton(this.label, {super.key, required this.onTap});
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) => MouseRegion(
+    cursor: SystemMouseCursors.click,
+    child: GestureDetector(
+      onTap: onTap,
+      child: Text(
+        label,
+        style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: Palette.accent),
+      ),
+    ),
+  );
+}

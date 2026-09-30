@@ -7,6 +7,7 @@ import '../core/app_settings.dart';
 import '../core/headphones_controller.dart';
 import 'details_dialog.dart';
 import 'equalizer.dart';
+import 'profiles.dart';
 import 'settings_dialog.dart';
 import 'theme.dart';
 import 'widgets.dart';
@@ -19,7 +20,7 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListenableBuilder(
-      listenable: controller,
+      listenable: Listenable.merge([controller, settings]),
       builder: (context, _) {
         final c = controller;
         final ready = c.isReady;
@@ -39,6 +40,10 @@ class HomePage extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
+                        if (settings.profilesEnabled) ...[
+                          ProfilesSection(controller: c, settings: settings),
+                          const SizedBox(height: 22),
+                        ],
                         Section(
                           title: 'Sound control',
                           child: _NoiseControl(c: c),
@@ -343,9 +348,9 @@ class _EqualizerState extends State<_Equalizer> {
           : Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                if (_editing) _LinkButton('Reset', onTap: () => c.setEqBands(List.filled(c.eqBands.length, 10))),
+                if (_editing) LinkButton('Reset', onTap: () => c.setEqBands(List.filled(c.eqBands.length, 10))),
                 const SizedBox(width: 14),
-                _LinkButton(_editing ? 'Done' : 'Edit', onTap: () => setState(() => _editing = !_editing)),
+                LinkButton(_editing ? 'Done' : 'Edit', onTap: () => setState(() => _editing = !_editing)),
               ],
             ),
       child: Panel(
@@ -384,24 +389,6 @@ class _EqualizerState extends State<_Equalizer> {
       ),
     );
   }
-}
-
-class _LinkButton extends StatelessWidget {
-  const _LinkButton(this.label, {required this.onTap});
-  final String label;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) => MouseRegion(
-    cursor: SystemMouseCursors.click,
-    child: GestureDetector(
-      onTap: onTap,
-      child: Text(
-        label,
-        style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: Palette.accent),
-      ),
-    ),
-  );
 }
 
 class _PowerOff extends StatelessWidget {
