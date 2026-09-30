@@ -45,17 +45,21 @@ Frame layout: `0x3E  dataType  seq  len(BE32)  payload  checksum  0x3C`, where `
 
 ## Build and run
 
-Requirements: Flutter 3.47+, and on macOS Xcode with the command line tools. Pair the headphones in system Bluetooth settings first.
+Requirements: Flutter 3.47+, plus Xcode on macOS or Visual Studio 2022 with the "Desktop development with C++" workload on Windows. Pair the headphones in system Bluetooth settings first.
 
 ```sh
 flutter pub get
-flutter run -d macos
+flutter run -d macos     # or: flutter run -d windows
 flutter test
 ```
 
 On first launch macOS asks for Bluetooth permission. Debug builds are ad-hoc signed, so macOS may ask again after each rebuild. Release builds are not signed or notarized.
 
 The app icon is drawn by `tool/make_icon.swift`; run `tool/install_icons.sh` to regenerate the macOS and Windows icons from it.
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md). The Dart ↔ native contract, and the plan for the Windows Bluetooth bridge, are in [docs/platform-bridge.md](docs/platform-bridge.md).
 
 ## Credits
 
