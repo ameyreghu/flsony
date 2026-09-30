@@ -43,9 +43,3 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
-
-# Unsupported platform scaffolds (macOS and Windows only)
-/android/
-/ios/
-/linux/
-/web/
