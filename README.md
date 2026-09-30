@@ -1,0 +1,62 @@
+# Sony Connect
+
+An unofficial desktop companion for the **Sony WH-1000XM4** (and likely XM3/XM5) headphones, built with Flutter. Sony's *Sound Connect* app has no macOS or Windows version; this fills that gap with a small, minimal interface.
+
+> Not affiliated with or endorsed by Sony. "Sony", "WH-1000XM4" and "Sound Connect" are trademarks of Sony Group Corporation. The protocol used here is community reverse-engineered and may change with firmware updates. Use at your own risk.
+
+## Features
+
+- Noise cancelling / Ambient sound / Off, with ambient level and *Focus on voice*
+- Speak-to-Chat and touch-sensor toggles
+- Equalizer: device presets, Custom 1/2 slots, and 5 bands + Clear Bass, locked behind an **Edit** button so you can't change it by accident
+- Battery level and charging state
+- Power off the headphones
+- **Connection details** panel: transport, RFCOMM channel, protocol, session stats, advertised features and a live packet log
+
+## Status
+
+| Platform | Status |
+|---|---|
+| macOS 12+ | Working. Uses IOBluetooth for the RFCOMM link. |
+| Windows 10/11 | **Not working yet.** The Flutter UI and protocol code are shared, but the native Bluetooth bridge (`Windows.Devices.Bluetooth.Rfcomm`) is not written. Contributions welcome. |
+
+Not implemented: multipoint / paired-device management, idle auto power-off, volume, and audio codec control. Audio itself is handled by your OS, not this app, and neither macOS nor Windows supports LDAC natively.
+
+## How it works
+
+Sony headphones expose a proprietary RFCOMM service ("Serial HPC", UUID `96CC203E-5068-46AD-B32D-E316F5E069BA`) on classic Bluetooth. The app is split in two:
+
+- **Native bridge** (`macos/Runner/BluetoothPlugin.swift`): a thin byte pipe. It finds the paired headphones, opens the RFCOMM channel, forwards bytes both ways and reports connect / reachability events over a Flutter platform channel (`flsony/bt`).
+- **Dart** (`lib/core`): everything else. Sony's framing (`sony_packet.dart`), the handshake, feature discovery and command/notify handling (`headphones_controller.dart`).
+
+Keeping the protocol in Dart means a new platform only needs the small native bridge.
+
+Frame layout: `0x3E  dataType  seq  len(BE32)  payload  checksum  0x3C`, where `0x3C/0x3D/0x3E` inside the body are escaped as `0x3D` followed by `byte & 0xEF`.
+
+## Build and run
+
+Requirements: Flutter 3.47+, and on macOS Xcode with the command line tools. Pair the headphones in system Bluetooth settings first.
+
+```sh
+flutter pub get
+flutter run -d macos
+flutter test
+```
+
+On first launch macOS asks for Bluetooth permission. Release builds are not signed or notarized.
+
+The app icon is drawn by `tool/make_icon.swift`; run `tool/install_icons.sh` to regenerate the macOS and Windows icons from it.
+
+## Credits
+
+This project stands on other people's reverse-engineering work:
+
+- **[tanat/sony-connect-osx](https://github.com/tanat/sony-connect-osx)** by Tanat Kamalov and contributors. The native macOS menu-bar app this one is based on. The handshake sequence, opcode usage, touch-panel slot discovery and EQ/NCASM payload handling were ported from it to Dart.
+- **[SonyHeadphonesClient](https://github.com/Plutoberth/SonyHeadphonesClient)** by Plutoberth and contributors. Source of the framing and NCASM payload structure.
+- **[Gadgetbridge](https://codeberg.org/Freeyourgadget/Gadgetbridge)**. Source of the V1 opcode tables and capability negotiation logic.
+
+Fonts are bundled under the SIL Open Font License 1.1: [Manrope](https://fonts.google.com/specimen/Manrope) and [Space Grotesk](https://fonts.google.com/specimen/Space+Grotesk) (licenses in `assets/fonts`).
+
+## License
+
+MIT, see [LICENSE](LICENSE), covering the code written for this repository. Third-party fonts keep their own licenses.
