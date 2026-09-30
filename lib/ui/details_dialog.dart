@@ -6,23 +6,11 @@ import '../core/headphones_controller.dart';
 import 'theme.dart';
 import 'widgets.dart';
 
-Future<void> showConnectionDetails(BuildContext context, HeadphonesController c) {
-  return showDialog<void>(
-    context: context,
-    builder: (_) => Dialog(
-      backgroundColor: Palette.bg,
-      insetPadding: const EdgeInsets.all(14),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(24),
-        side: const BorderSide(color: Palette.hairline),
-      ),
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 460, maxHeight: 680),
-        child: _Details(c: c),
-      ),
-    ),
-  );
-}
+Future<void> showConnectionDetails(BuildContext context, HeadphonesController c) => showPanelDialog(
+  context,
+  title: 'Connection details',
+  child: _Details(c: c),
+);
 
 class _Details extends StatefulWidget {
   const _Details({required this.c});
@@ -71,87 +59,64 @@ class _DetailsState extends State<_Details> {
           ('Model (reported)', c.modelName ?? 'not reported'),
           ('Firmware (reported)', c.firmwareVersion ?? 'not reported'),
         ];
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+        return ListView(
+          padding: const EdgeInsets.fromLTRB(18, 4, 18, 18),
           children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(22, 18, 12, 6),
-              child: Row(
-                children: [
-                  const Text(
-                    'Connection details',
-                    style: TextStyle(fontFamily: Fonts.display, fontSize: 19, fontWeight: FontWeight.w700),
-                  ),
-                  const Spacer(),
-                  IconButton(
-                    onPressed: () => Navigator.pop(context),
-                    icon: const Icon(Icons.close_rounded, color: Palette.textDim),
-                  ),
-                ],
+            Panel(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+              child: Column(children: [for (final r in rows) _Row(r.$1, r.$2)]),
+            ),
+            const SizedBox(height: 18),
+            Section(
+              title: 'Features advertised',
+              child: Panel(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                child: c.featureSlots.isEmpty
+                    ? const _Row('General settings', 'none reported yet')
+                    : Column(
+                        children: [
+                          for (final f in c.featureSlots)
+                            _Row('Slot 0x${f.slot.toRadixString(16).toUpperCase()}', '${f.name} · ${f.type}'),
+                        ],
+                      ),
               ),
             ),
-            Expanded(
-              child: ListView(
-                padding: const EdgeInsets.fromLTRB(18, 4, 18, 18),
-                children: [
-                  Panel(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-                    child: Column(children: [for (final r in rows) _Row(r.$1, r.$2)]),
-                  ),
-                  const SizedBox(height: 18),
-                  Section(
-                    title: 'Features advertised',
-                    child: Panel(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-                      child: c.featureSlots.isEmpty
-                          ? const _Row('General settings', 'none reported yet')
-                          : Column(
-                              children: [
-                                for (final f in c.featureSlots)
-                                  _Row('Slot 0x${f.slot.toRadixString(16).toUpperCase()}', '${f.name} · ${f.type}'),
-                              ],
-                            ),
-                    ),
-                  ),
-                  const SizedBox(height: 18),
-                  Section(
-                    title: 'Packet log',
-                    child: Panel(
-                      padding: const EdgeInsets.all(12),
-                      child: c.packetLog.isEmpty
-                          ? const Text('No traffic yet.', style: TextStyle(color: Palette.textDim, fontSize: 12))
-                          : Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                for (final l in c.packetLog.reversed.take(40))
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(vertical: 1.5),
-                                    child: Text.rich(
-                                      TextSpan(
-                                        children: [
-                                          TextSpan(
-                                            text: l.tx ? 'TX  ' : 'RX  ',
-                                            style: TextStyle(
-                                              color: l.tx ? Palette.warn : Palette.accent,
-                                              fontWeight: FontWeight.w800,
-                                            ),
-                                          ),
-                                          TextSpan(text: l.hex),
-                                        ],
-                                      ),
-                                      style: const TextStyle(
-                                        fontFamily: 'Menlo',
-                                        fontFamilyFallback: ['Consolas', 'monospace'],
-                                        fontSize: 11,
-                                        color: Palette.textDim,
+            const SizedBox(height: 18),
+            Section(
+              title: 'Packet log',
+              child: Panel(
+                padding: const EdgeInsets.all(12),
+                child: c.packetLog.isEmpty
+                    ? const Text('No traffic yet.', style: TextStyle(color: Palette.textDim, fontSize: 12))
+                    : Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          for (final l in c.packetLog.reversed.take(40))
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 1.5),
+                              child: Text.rich(
+                                TextSpan(
+                                  children: [
+                                    TextSpan(
+                                      text: l.tx ? 'TX  ' : 'RX  ',
+                                      style: TextStyle(
+                                        color: l.tx ? Palette.warn : Palette.accent,
+                                        fontWeight: FontWeight.w800,
                                       ),
                                     ),
-                                  ),
-                              ],
+                                    TextSpan(text: l.hex),
+                                  ],
+                                ),
+                                style: const TextStyle(
+                                  fontFamily: 'Menlo',
+                                  fontFamilyFallback: ['Consolas', 'monospace'],
+                                  fontSize: 11,
+                                  color: Palette.textDim,
+                                ),
+                              ),
                             ),
-                    ),
-                  ),
-                ],
+                        ],
+                      ),
               ),
             ),
           ],

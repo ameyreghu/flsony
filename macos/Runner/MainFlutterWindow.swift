@@ -10,6 +10,7 @@ class MainFlutterWindow: NSWindow {
 
     RegisterGeneratedPlugins(registry: flutterViewController)
     BluetoothPlugin.register(with: flutterViewController.engine.binaryMessenger)
+    SystemPlugin.register(with: flutterViewController.engine.binaryMessenger)
 
     super.awakeFromNib()
   }

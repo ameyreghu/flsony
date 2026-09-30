@@ -186,8 +186,14 @@ class HeadphonesController extends ChangeNotifier {
     _later(300, () => _send([_Op.eqGetParam, _Op.eqPresetType]));
   }
 
-  void powerOff() {
+  /// Runs before the power-off command is sent (e.g. pausing media so it
+  /// doesn't jump to the laptop speakers when the headphones drop).
+  Future<void> Function()? beforePowerOff;
+
+  Future<void> powerOff() async {
     if (!isReady) return;
+    final hook = beforePowerOff;
+    if (hook != null) await hook();
     _send([_Op.powerOff, 0x00, 0x01]);
   }
 

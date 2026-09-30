@@ -27,7 +27,7 @@ class Section extends StatelessWidget {
                 ),
               ),
               const Spacer(),
-              if (trailing != null) trailing!,
+              ?trailing,
             ],
           ),
         ),
@@ -241,4 +241,44 @@ class Chip2 extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Full-height dialog used for secondary screens (details, settings).
+Future<void> showPanelDialog(BuildContext context, {required String title, required Widget child}) {
+  return showDialog<void>(
+    context: context,
+    builder: (ctx) => Dialog(
+      backgroundColor: Palette.bg,
+      insetPadding: const EdgeInsets.all(14),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(24),
+        side: const BorderSide(color: Palette.hairline),
+      ),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 460, maxHeight: 680),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(22, 18, 12, 6),
+              child: Row(
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(fontFamily: Fonts.display, fontSize: 19, fontWeight: FontWeight.w700),
+                  ),
+                  const Spacer(),
+                  IconButton(
+                    onPressed: () => Navigator.pop(ctx),
+                    icon: const Icon(Icons.close_rounded, color: Palette.textDim),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(child: child),
+          ],
+        ),
+      ),
+    ),
+  );
 }

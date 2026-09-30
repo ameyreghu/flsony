@@ -3,15 +3,18 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:window_manager/window_manager.dart';
 
+import '../core/app_settings.dart';
 import '../core/headphones_controller.dart';
 import 'details_dialog.dart';
 import 'equalizer.dart';
+import 'settings_dialog.dart';
 import 'theme.dart';
 import 'widgets.dart';
 
 class HomePage extends StatelessWidget {
-  const HomePage({super.key, required this.controller});
+  const HomePage({super.key, required this.controller, required this.settings});
   final HeadphonesController controller;
+  final AppSettings settings;
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +28,7 @@ class HomePage extends StatelessWidget {
             child: ListView(
               padding: EdgeInsets.fromLTRB(20, Platform.isMacOS ? 34 : 18, 20, 24),
               children: [
-                DragToMoveArea(child: _Header(c: c)),
+                _Header(c: c, settings: settings),
                 const SizedBox(height: 22),
                 if (!ready) _StatusBanner(c: c),
                 AnimatedOpacity(
@@ -84,8 +87,9 @@ class HomePage extends StatelessWidget {
 }
 
 class _Header extends StatelessWidget {
-  const _Header({required this.c});
+  const _Header({required this.c, required this.settings});
   final HeadphonesController c;
+  final AppSettings settings;
 
   @override
   Widget build(BuildContext context) {
@@ -97,39 +101,49 @@ class _Header extends StatelessWidget {
     };
     return Row(
       children: [
-        Image.asset('assets/icon/mark.png', width: 44, height: 44, filterQuality: FilterQuality.medium),
-        const SizedBox(width: 12),
+        // Only the identity block drags the window: DragToMoveArea's
+        // double-tap recogniser would otherwise delay taps on the buttons.
         Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                c.deviceName,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  fontFamily: Fonts.display,
-                  fontSize: 22,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: -0.4,
+          child: DragToMoveArea(
+            child: Row(
+              children: [
+                Image.asset('assets/icon/mark.png', width: 44, height: 44, filterQuality: FilterQuality.medium),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        c.deviceName,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontFamily: Fonts.display,
+                          fontSize: 22,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: -0.4,
+                        ),
+                      ),
+                      const SizedBox(height: 3),
+                      Row(
+                        children: [
+                          Container(
+                            width: 7,
+                            height: 7,
+                            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            label,
+                            style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600, color: Palette.textDim),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              const SizedBox(height: 3),
-              Row(
-                children: [
-                  Container(
-                    width: 7,
-                    height: 7,
-                    decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-                  ),
-                  const SizedBox(width: 6),
-                  Text(
-                    label,
-                    style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600, color: Palette.textDim),
-                  ),
-                ],
-              ),
-            ],
+              ],
+            ),
           ),
         ),
         if (c.battery != null) _Battery(level: c.battery!, charging: c.charging),
@@ -137,6 +151,11 @@ class _Header extends StatelessWidget {
           tooltip: 'Connection details',
           onPressed: () => showConnectionDetails(context, c),
           icon: const Icon(Icons.info_outline_rounded, size: 20, color: Palette.textDim),
+        ),
+        IconButton(
+          tooltip: 'Settings',
+          onPressed: () => showSettings(context, settings),
+          icon: const Icon(Icons.tune_rounded, size: 20, color: Palette.textDim),
         ),
       ],
     );

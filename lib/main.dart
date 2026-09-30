@@ -3,7 +3,9 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:window_manager/window_manager.dart';
 
+import 'core/app_settings.dart';
 import 'core/headphones_controller.dart';
+import 'core/system_bridge.dart';
 import 'ui/home_page.dart';
 import 'ui/theme.dart';
 
@@ -25,13 +27,24 @@ Future<void> main() async {
     },
   );
 
-  final controller = HeadphonesController()..start();
-  runApp(SonyConnectApp(controller: controller));
+  final settings = await AppSettings.load();
+  final system = SystemBridge();
+  final controller = HeadphonesController()
+    ..beforePowerOff = () async {
+      if (!settings.pauseBeforePowerOff) return;
+      if (await system.pauseMedia()) {
+        // Let the player actually stop before A2DP drops.
+        await Future<void>.delayed(const Duration(milliseconds: 300));
+      }
+    }
+    ..start();
+  runApp(SonyConnectApp(controller: controller, settings: settings));
 }
 
 class SonyConnectApp extends StatelessWidget {
-  const SonyConnectApp({super.key, required this.controller});
+  const SonyConnectApp({super.key, required this.controller, required this.settings});
   final HeadphonesController controller;
+  final AppSettings settings;
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +52,7 @@ class SonyConnectApp extends StatelessWidget {
       title: 'Sony Connect',
       debugShowCheckedModeBanner: false,
       theme: buildTheme(),
-      home: HomePage(controller: controller),
+      home: HomePage(controller: controller, settings: settings),
     );
   }
 }
