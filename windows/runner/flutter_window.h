@@ -6,6 +6,9 @@
 
 #include <memory>
 
+#include "bluetooth_plugin.h"
+#include "platform_dispatcher.h"
+#include "system_plugin.h"
 #include "win32_window.h"
 
 // A window that does nothing but host a Flutter view.
@@ -28,6 +31,11 @@ class FlutterWindow : public Win32Window {
 
   // The Flutter instance hosted by this window.
   std::unique_ptr<flutter::FlutterViewController> flutter_controller_;
+
+  // FlSony's own platform channels; see docs/platform-bridge.md.
+  std::shared_ptr<PlatformDispatcher> dispatcher_;
+  std::shared_ptr<BluetoothPlugin> bluetooth_;
+  std::unique_ptr<SystemPlugin> system_;
 };
 
 #endif  // RUNNER_FLUTTER_WINDOW_H_

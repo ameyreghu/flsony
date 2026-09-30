@@ -1,6 +1,6 @@
 # FlSony
 
-Unofficial desktop app for **Sony WH-1000XM4** headphones on macOS: noise cancelling, EQ, Speak-to-Chat, battery and more. Built with Flutter; Windows support in progress.
+Unofficial desktop app for **Sony WH-1000XM4** headphones on macOS and Windows: noise cancelling, EQ, Speak-to-Chat, battery and more. Built with Flutter; Windows support is new.
 
 Sony's *Sound Connect* app has no macOS or Windows version; FlSony fills that gap with a small, minimal interface. XM3 and XM5 are matched by name and may work, but are untested.
 
@@ -28,7 +28,7 @@ Features Sony's app doesn't have. Each is off until you turn it on in **Settings
 | Platform | Status |
 |---|---|
 | macOS 12+ | Working. Uses IOBluetooth for the RFCOMM link. |
-| Windows 10/11 | **Not working yet.** The Flutter UI and protocol code are shared, but the native Bluetooth bridge (`Windows.Devices.Bluetooth.Rfcomm`) is not written. Contributions welcome. |
+| Windows 10/11 | **Early.** Connects and reads every setting (tested on Windows 11 with a WH-1000XM4); controls, power off and reconnecting are still being tested. |
 
 Not implemented: multipoint / paired-device management, idle auto power-off, volume, and audio codec control. Audio itself is handled by your OS, not this app, and neither macOS nor Windows supports LDAC natively.
 
@@ -59,7 +59,7 @@ The app icon is drawn by `tool/make_icon.swift`; run `tool/install_icons.sh` to 
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md). The Dart ↔ native contract, and the plan for the Windows Bluetooth bridge, are in [docs/platform-bridge.md](docs/platform-bridge.md).
+See [CONTRIBUTING.md](CONTRIBUTING.md). The Dart ↔ native contract, and notes on the Windows Bluetooth bridge, are in [docs/platform-bridge.md](docs/platform-bridge.md).
 
 ## Credits
 
