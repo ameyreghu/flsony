@@ -1,7 +1,7 @@
 // Renders the app icon: `swift tool/make_icon.swift assets/icon`
 import AppKit
 
-func render(size: Int, background: Bool, path: String) {
+func render(size: Int, background: Bool, mono: Bool = false, path: String) {
     let s = CGFloat(size)
     let rep = NSBitmapImageRep(bitmapDataPlanes: nil, pixelsWide: size, pixelsHigh: size,
                                bitsPerSample: 8, samplesPerPixel: 4, hasAlpha: true, isPlanar: false,
@@ -39,9 +39,9 @@ func render(size: Int, background: Bool, path: String) {
     }
 
     // Glyph: headband + two earcups, scaled about the canvas centre.
-    let g = background ? 1.0 : 1.22
+    let g = background ? 1.0 : mono ? 1.4 : 1.22
     func P(_ x: CGFloat, _ y: CGFloat) -> CGPoint { CGPoint(x: s * (0.5 + (x - 0.5) * g), y: s * (0.5 + (y - 0.5) * g)) }
-    let lw = s * 0.062 * g
+    let lw = s * (mono ? 0.075 : 0.062) * g
 
     ctx.saveGState()
     let band = CGMutablePath()
@@ -51,7 +51,10 @@ func render(size: Int, background: Bool, path: String) {
     ctx.setLineWidth(lw); ctx.setLineCap(.round)
     ctx.replacePathWithStrokedPath()
     ctx.clip()
-    let ink = CGGradient(colorsSpace: cs, colors: [color(0xF4F7FB), color(0x8FF0D8)] as CFArray, locations: [0, 1])!
+    // Menu-bar "template" icons must be black-on-transparent; macOS tints them.
+    let ink = mono
+        ? CGGradient(colorsSpace: cs, colors: [color(0x000000), color(0x000000)] as CFArray, locations: [0, 1])!
+        : CGGradient(colorsSpace: cs, colors: [color(0xF4F7FB), color(0x8FF0D8)] as CFArray, locations: [0, 1])!
     ctx.drawLinearGradient(ink, start: P(0.3, 0.78), end: P(0.7, 0.3), options: [])
     ctx.restoreGState()
 
@@ -78,3 +81,4 @@ func render(size: Int, background: Bool, path: String) {
 let dir = CommandLine.arguments.count > 1 ? CommandLine.arguments[1] : "."
 render(size: 1024, background: true, path: "\(dir)/icon_1024.png")
 render(size: 512, background: false, path: "\(dir)/mark.png")
+render(size: 64, background: false, mono: true, path: "\(dir)/tray_template.png")

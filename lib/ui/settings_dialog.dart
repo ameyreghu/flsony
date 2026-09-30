@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 
 import '../core/app_settings.dart';
@@ -38,6 +40,14 @@ class _Settings extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                   child: Column(
                     children: [
+                      ToggleRow(
+                        icon: Icons.space_dashboard_outlined,
+                        title: Platform.isWindows ? 'System tray icon' : 'Menu bar icon',
+                        subtitle: 'Battery and quick controls; closing the window keeps the app running',
+                        value: settings.menuBarIcon,
+                        onChanged: () => settings.menuBarIcon = !settings.menuBarIcon,
+                      ),
+                      const Divider(height: 1, color: Palette.hairline),
                       ToggleRow(
                         icon: Icons.pause_circle_outline_rounded,
                         title: 'Pause media before power off',

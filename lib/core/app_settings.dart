@@ -20,4 +20,7 @@ class AppSettings extends ChangeNotifier {
   // --- Extras -------------------------------------------------------------
   bool get pauseBeforePowerOff => _get('extras.pauseBeforePowerOff', false);
   set pauseBeforePowerOff(bool v) => _set('extras.pauseBeforePowerOff', v);
+
+  bool get menuBarIcon => _get('extras.menuBarIcon', false);
+  set menuBarIcon(bool v) => _set('extras.menuBarIcon', v);
 }

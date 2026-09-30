@@ -7,6 +7,7 @@ import 'core/app_settings.dart';
 import 'core/headphones_controller.dart';
 import 'core/system_bridge.dart';
 import 'ui/home_page.dart';
+import 'ui/menu_bar.dart';
 import 'ui/theme.dart';
 
 Future<void> main() async {
@@ -38,6 +39,7 @@ Future<void> main() async {
       }
     }
     ..start();
+  await TrayMenu(controller, settings).init();
   runApp(SonyConnectApp(controller: controller, settings: settings));
 }
 
