@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 
 import '../core/app_settings.dart';
+import '../core/system_bridge.dart';
 import 'theme.dart';
 import 'widgets.dart';
 
@@ -59,9 +60,12 @@ class _Settings extends StatelessWidget {
                       ToggleRow(
                         icon: Icons.pause_circle_outline_rounded,
                         title: 'Pause media before power off',
-                        subtitle: 'So music doesn\'t jump to your speakers',
+                        subtitle: 'Pauses Music, Spotify and TV so audio doesn\'t jump to your speakers',
                         value: settings.pauseBeforePowerOff,
-                        onChanged: () => settings.pauseBeforePowerOff = !settings.pauseBeforePowerOff,
+                        onChanged: () {
+                          settings.pauseBeforePowerOff = !settings.pauseBeforePowerOff;
+                          if (settings.pauseBeforePowerOff) SystemBridge().prepareMediaPause();
+                        },
                       ),
                     ],
                   ),
