@@ -13,6 +13,14 @@ An unofficial desktop companion for the **Sony WH-1000XM4** (and likely XM3/XM5)
 - Power off the headphones
 - **Connection details** panel: transport, RFCOMM channel, protocol, session stats, advertised features and a live packet log
 
+### Extras (opt-in)
+
+Features Sony's app doesn't have. Each is off until you turn it on in **Settings → Extras**.
+
+- **Menu bar / system tray icon**: battery next to the icon and a menu to switch noise mode or Speak-to-Chat. While it's on, closing the window keeps the app running.
+- **Profiles**: save the current noise mode, ambient level, Focus on voice, Speak-to-Chat and EQ under a name and apply it in one click.
+- **Pause media before power off**, so music doesn't jump to your laptop speakers.
+
 ## Status
 
 | Platform | Status |
@@ -43,7 +51,7 @@ flutter run -d macos
 flutter test
 ```
 
-On first launch macOS asks for Bluetooth permission. Release builds are not signed or notarized.
+On first launch macOS asks for Bluetooth permission. Debug builds are ad-hoc signed, so macOS may ask again after each rebuild. Release builds are not signed or notarized.
 
 The app icon is drawn by `tool/make_icon.swift`; run `tool/install_icons.sh` to regenerate the macOS and Windows icons from it.
 
