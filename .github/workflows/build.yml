@@ -1,0 +1,85 @@
+# Checks, then builds and packages FlSony for macOS and Windows.
+# Called by ci.yml (every push / PR) and release.yml (version tags).
+name: Build
+
+on:
+  workflow_call:
+    inputs:
+      version:
+        description: Version used in file names, e.g. 0.1.0, 0.1.0-rc.1 or 0.1.0-dev.42
+        type: string
+        required: true
+      retention-days:
+        description: How long to keep the packaged files on the run page
+        type: number
+        default: 14
+
+env:
+  FLUTTER_VERSION: 3.47.5
+  VERSION: ${{ inputs.version }}
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - name: Formatting
+        run: dart format --output=none --set-exit-if-changed lib test
+      - run: flutter analyze
+      - run: flutter test
+
+  macos:
+    needs: check
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      # The app's version is the numeric part (0.1.0-rc.1 -> 0.1.0).
+      - name: Build
+        run: flutter build macos --release --build-name "${VERSION%%-*}" --build-number "${{ github.run_number }}"
+      - name: Package
+        run: tool/package_macos.sh "$VERSION"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: FlSony-${{ inputs.version }}-macos
+          path: dist/*
+          if-no-files-found: error
+          retention-days: ${{ inputs.retention-days }}
+
+  windows:
+    needs: check
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+      - name: Install Inno Setup
+        run: choco install innosetup --no-progress -y
+      - run: flutter pub get
+      - name: Build
+        run: flutter build windows --release --build-name "$($env:VERSION.Split('-')[0])" --build-number "${{ github.run_number }}"
+      - name: Package
+        run: ./tool/package_windows.ps1 -Version $env:VERSION
+      - uses: actions/upload-artifact@v4
+        with:
+          name: FlSony-${{ inputs.version }}-windows
+          path: dist/*
+          if-no-files-found: error
+          retention-days: ${{ inputs.retention-days }}

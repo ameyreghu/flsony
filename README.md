@@ -1,5 +1,7 @@
 # FlSony
 
+[![CI](https://github.com/ameyreghu/flsony/actions/workflows/ci.yml/badge.svg)](https://github.com/ameyreghu/flsony/actions/workflows/ci.yml)
+
 Unofficial desktop app for **Sony WH-1000XM4** headphones on macOS and Windows: noise cancelling, EQ, Speak-to-Chat, battery and more. Built with Flutter; Windows support is new.
 
 Sony's *Sound Connect* app has no macOS or Windows version; FlSony fills that gap with a small, minimal interface. XM3 and XM5 are matched by name and may work, but are untested.
@@ -32,6 +34,15 @@ Features Sony's app doesn't have. Each is off until you turn it on in **Settings
 
 Not implemented: multipoint / paired-device management, idle auto power-off, volume, and audio codec control. Audio itself is handled by your OS, not this app, and neither macOS nor Windows supports LDAC natively.
 
+## Install
+
+Download the latest build from [Releases](https://github.com/ameyreghu/flsony/releases).
+
+FlSony isn't code-signed yet, so the first launch needs one extra step:
+
+- **macOS:** drag FlSony from the `.dmg` to Applications and open it. When macOS says it can't verify the app, click **Done**, then go to **System Settings → Privacy & Security** and click **Open Anyway**.
+- **Windows:** run the `-setup.exe` (or unzip the portable `.zip`). If SmartScreen appears, click **More info → Run anyway**.
+
 ## How it works
 
 Sony headphones expose a proprietary RFCOMM service ("Serial HPC", UUID `96CC203E-5068-46AD-B32D-E316F5E069BA`) on classic Bluetooth. The app is split in two:
@@ -54,6 +65,12 @@ flutter test
 ```
 
 On first launch macOS asks for Bluetooth permission. Debug builds are ad-hoc signed, so macOS may ask again after each rebuild. Release builds are not signed or notarized.
+
+To package a release locally, run `tool/package_macos.sh <version>` after a macOS release build, or `tool/package_windows.ps1 -Version <version>` after a Windows one (the installer needs [Inno Setup 6](https://jrsoftware.org/isinfo.php)).
+
+### Releasing
+
+Pushing a tag such as `v0.1.0` runs `.github/workflows/release.yml`, which builds both platforms on GitHub Actions and publishes a GitHub Release with the `.dmg`, the Windows installer and zip, and `SHA256SUMS.txt`. Tags with a suffix (`v0.2.0-rc.1`) become pre-releases. Every push and pull request also runs `ci.yml`, whose builds can be downloaded from the run page.
 
 The app icon is drawn by `tool/make_icon.swift`; run `tool/install_icons.sh` to regenerate the macOS and Windows icons from it.
 
